@@ -78,7 +78,7 @@ export default function DashboardPage() {
   const [page, setPage] = useState<PageType>('Homepage');
   const [timeRange, setTimeRange] = useState<TimeRangeType>('24H');
 
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
   const [allRecords, setAllRecords] = useState<ProcessedRecord[]>([]);
   const [meta, setMeta] = useState<PageSpeedApiResponse['meta']>({
