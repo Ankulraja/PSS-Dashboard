@@ -10,7 +10,7 @@ interface TimeRangeSelectorProps {
   theme?: 'dark' | 'light';
 }
 
-const RANGES: TimeRangeType[] = ['6H', '12H', '24H', '7D', '30D'];
+const RANGES: TimeRangeType[] = ['6H', '12H', '1D', '7D', '30D'];
 
 export const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ selected, onChange, theme = 'dark' }) => {
   const isLight = theme === 'light';

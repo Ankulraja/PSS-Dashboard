@@ -42,13 +42,26 @@ export interface ProcessedRecord {
 
 export type DeviceType = 'mobile' | 'desktop';
 export type PageType = 'Homepage' | 'Search Page' | 'PDP' | 'Company Page';
-export type TimeRangeType = '6H' | '12H' | '24H' | '7D' | '30D';
+export type TimeRangeType = '6H' | '12H' | '1D' | '24H' | '7D' | '30D';
+
+/**
+ * A ProcessedRecord tagged with an outlier flag by detectIsolatedOutliers().
+ * isOutlier = true  → isolated single-point spike (test noise / network fluke)
+ * isOutlier = false → normal reading or sustained regression (real change)
+ */
+export type TaggedRecord = ProcessedRecord & { isOutlier: boolean };
 
 export interface MetricDefinition {
   key: keyof Pick<ProcessedRecord, 'Performance_Score' | 'LCP' | 'FCP' | 'TBT' | 'SI' | 'CLS'>;
   title: string;
   unit: 'score' | 'seconds' | 'ms' | 'decimal';
   higherIsBetter: boolean;
+  /**
+   * IQR multiplier for isolated spike detection.
+   * Lower = stricter (flags more as outliers), Higher = looser (only extreme spikes).
+   * Recommended: 2.0 for score metrics, 2.5 for time-based metrics, 1.5 for CLS.
+   */
+  outlierMultiplier: number;
   formatValue: (val: number | null) => string;
   formatRawValue: (val: number | null) => string;
 }

@@ -1,0 +1,147 @@
+{
+  "_meta": {
+    "description": "Official Google / Lighthouse performance metric thresholds. Used to colour-code metric values as Good / Needs Improvement / Poor.",
+    "sources": [
+      "https://web.dev/articles/lcp",
+      "https://web.dev/articles/fcp",
+      "https://web.dev/articles/tbt",
+      "https://web.dev/articles/cls",
+      "https://developer.chrome.com/docs/lighthouse/performance/performance-scoring"
+    ],
+    "lastVerified": "2026-08-16",
+    "notes": {
+      "fieldVsLab": "LCP and CLS are Core Web Vitals measured from real-user field data — thresholds are the same for mobile and desktop. FCP, TBT, and SI are Lighthouse lab metrics — desktop thresholds are stricter because mobile audits apply 4x CPU throttling and slow-network simulation.",
+      "unit": "All time values are in MILLISECONDS to match the unit stored in ProcessedRecord (LCP, FCP, TBT, SI). CLS is unitless. Performance_Score is 0–100.",
+      "ratings": {
+        "good": "green  — at or below the 'good' ceiling",
+        "needsImprovement": "amber  — above 'good' ceiling but at or below 'poor' floor",
+        "poor": "red    — above the 'poor' floor"
+      }
+    }
+  },
+
+  "Performance_Score": {
+    "higherIsBetter": true,
+    "unit": "score",
+    "sameForBothDevices": true,
+    "mobile": {
+      "good":             { "min": 90,  "max": 100 },
+      "needsImprovement": { "min": 80,  "max": 89.999999999 },
+      "poor":             { "min": 0,   "max": 79.999999999 }
+    },
+    "desktop": {
+      "good":             { "min": 90,  "max": 100 },
+      "needsImprovement": { "min": 80,  "max": 89.999999999 },
+      "poor":             { "min": 0,   "max": 79.999999999 }
+    },
+    "thresholds": {
+      "good":            90,
+      "needsImprovement": 80
+    }
+  },
+
+  "LCP": {
+    "higherIsBetter": false,
+    "unit": "ms",
+    "sameForBothDevices": true,
+    "description": "Largest Contentful Paint — Core Web Vital. Field metric. Same threshold for mobile and desktop.",
+    "mobile": {
+      "good":             { "max": 2500  },
+      "needsImprovement": { "min": 2500, "max": 4000 },
+      "poor":             { "min": 4000  }
+    },
+    "desktop": {
+      "good":             { "max": 2500  },
+      "needsImprovement": { "min": 2500, "max": 4000 },
+      "poor":             { "min": 4000  }
+    },
+    "thresholds": {
+      "good":            2500,
+      "poor":            4000
+    }
+  },
+
+  "FCP": {
+    "higherIsBetter": false,
+    "unit": "ms",
+    "sameForBothDevices": false,
+    "description": "First Contentful Paint — Lighthouse lab metric. Desktop has stricter thresholds due to absence of CPU/network throttling.",
+    "mobile": {
+      "good":             { "max": 1800  },
+      "needsImprovement": { "min": 1800, "max": 3000 },
+      "poor":             { "min": 3000  }
+    },
+    "desktop": {
+      "good":             { "max": 900   },
+      "needsImprovement": { "min": 900,  "max": 1600 },
+      "poor":             { "min": 1600  }
+    },
+    "thresholds": {
+      "mobile":  { "good": 1800, "poor": 3000 },
+      "desktop": { "good": 900,  "poor": 1600 }
+    }
+  },
+
+  "TBT": {
+    "higherIsBetter": false,
+    "unit": "ms",
+    "sameForBothDevices": false,
+    "description": "Total Blocking Time — Lighthouse lab metric. Desktop threshold is stricter.",
+    "mobile": {
+      "good":             { "max": 200   },
+      "needsImprovement": { "min": 200,  "max": 600  },
+      "poor":             { "min": 600   }
+    },
+    "desktop": {
+      "good":             { "max": 150   },
+      "needsImprovement": { "min": 150,  "max": 350  },
+      "poor":             { "min": 350   }
+    },
+    "thresholds": {
+      "mobile":  { "good": 200, "poor": 600 },
+      "desktop": { "good": 150, "poor": 350 }
+    }
+  },
+
+  "SI": {
+    "higherIsBetter": false,
+    "unit": "ms",
+    "sameForBothDevices": false,
+    "description": "Speed Index — Lighthouse lab metric. Desktop threshold is stricter.",
+    "mobile": {
+      "good":             { "max": 3400  },
+      "needsImprovement": { "min": 3400, "max": 5800 },
+      "poor":             { "min": 5800  }
+    },
+    "desktop": {
+      "good":             { "max": 1300  },
+      "needsImprovement": { "min": 1300, "max": 2300 },
+      "poor":             { "min": 2300  }
+    },
+    "thresholds": {
+      "mobile":  { "good": 3400, "poor": 5800 },
+      "desktop": { "good": 1300, "poor": 2300 }
+    }
+  },
+
+  "CLS": {
+    "higherIsBetter": false,
+    "unit": "decimal",
+    "sameForBothDevices": true,
+    "description": "Cumulative Layout Shift — Core Web Vital. Field metric. Same threshold for mobile and desktop.",
+    "mobile": {
+      "good":             { "max": 0.1   },
+      "needsImprovement": { "min": 0.1,  "max": 0.25 },
+      "poor":             { "min": 0.25  }
+    },
+    "desktop": {
+      "good":             { "max": 0.1   },
+      "needsImprovement": { "min": 0.1,  "max": 0.25 },
+      "poor":             { "min": 0.25  }
+    },
+    "thresholds": {
+      "good":  0.1,
+      "poor":  0.25
+    }
+  }
+}

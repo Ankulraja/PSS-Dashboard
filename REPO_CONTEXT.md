@@ -253,4 +253,79 @@ node test-gsheet.js
 
 ---
 
+## 13. Outlier Detection System
+
+### Algorithm: Isolated Spike Detection (Time-Series Aware IQR)
+
+Implemented in `lib/pagespeed.ts → detectIsolatedOutliers()`. Run per-metric inside each `MetricChart` via `useMemo`.
+
+A data point is flagged as an **isolated spike** (outlier) ONLY when ALL three conditions hold:
+1. Value is outside the IQR fence: `Q1 - N×IQR` to `Q3 + N×IQR`
+2. The nearest valid **previous** neighbor EXISTS and is within the fence
+3. The nearest valid **next** neighbor EXISTS and is within the fence
+
+**Key consequence**: Sustained changes (regressions after a code push) are NEVER flagged — because at least one neighbor will also be elevated. Only single-point isolated spikes (network hiccup, flaky test) get tagged.
+
+### Per-Metric Multiplier (`outlierMultiplier` in `MetricDefinition`)
+
+| Metric | Multiplier | Reason |
+|---|---|---|
+| Performance Score | 2.0 | Bounded 0–100; flag only extreme isolated single-point dips |
+| LCP, FCP, SI | 2.5 | Right-skewed; very loose fence, only extreme isolated spikes |
+| TBT | 2.5 | Naturally spiky; sustained elevation = real regression |
+| CLS | 1.5 | Small normal range (0.0x); stricter fence |
+
+### Edge Cases
+
+| Scenario | Result |
+|---|---|
+| < 8 valid data points | No filtering at all |
+| IQR ≈ 0 (constant data) | No filtering |
+| First or last data point | Never flagged (no neighbor on one side) |
+| Latest reading (no next yet) | Never flagged (cannot confirm isolation without future data) |
+| 2+ consecutive elevated readings | NOT flagged → treated as sustained regression |
+
+### UI Behaviour
+
+- Outlier points: silently filtered out of the line (`connectNulls={true}`)
+- Main trend line: connects smoothly across gaps
+- Primary Headline Score: displays the **75th Percentile (P75)** computed directly from the active plotted points on the chart (`6H`, `12H`, `1D`, `7D`, `30D`).
+  - For metrics where lower is better (LCP, FCP, TBT, SI, CLS): 75% of plotted points $\le$ this value.
+  - For Performance Score (higher is better): 75% of plotted points scored $\ge$ this value.
+- Sub-Stats: `Latest`, `↑ Max`, and `↓ Min` are calculated directly from the **currently plotted / visible points on the chart** (e.g. for `30D` it reflects the exact highest and lowest daily scores on the line, excluding raw hourly noise/outliers). All displayed inline next to the P75 headline score.
+- X-Axis Timeline & Granularity:
+  - **`6H`, `12H`, `1D`**: individual test runs with approximate hourly tick marks (e.g. `11:04` $\rightarrow$ `11:00`). Tooltip displays exact unrounded time.
+  - **`7D` and `30D`**: aggregates test runs into **1 single point per calendar day** representing that day's **P75** (exactly 7 points for a week, up to 30 points for a month, starting from the latest date). Tooltip shows the date, number of tests run on that day, and that day's P75 score.
+
+---
+
+## 14. Metric Thresholds & Range-Based Colors
+
+Threshold definitions are stored in [`src/data/metricThresholds.json`](file:///Users/ankulrajapatel/Desktop/Pss_Dashboard/src/data/metricThresholds.json) and helper functions in [`src/data/metricThresholds.ts`](file:///Users/ankulrajapatel/Desktop/Pss_Dashboard/src/data/metricThresholds.ts).
+
+### Range Rules:
+- **Performance Score**:
+  - 🟢 **Good (Green)**: `>= 90`
+  - 🟡 **Needs Improvement (Yellow)**: `80` to `89.999999999`
+  - 🔴 **Poor (Red)**: `< 80`
+- **LCP**:
+  - 🟢 **Good**: `≤ 2.5s` (≤ 2500ms)
+  - 🟡 **Needs Improvement**: `2.5s – 4.0s` (2500ms – 4000ms)
+  - 🔴 **Poor**: `> 4.0s` (> 4000ms)
+- **FCP**:
+  - Mobile: 🟢 `≤ 1.8s` | 🟡 `1.8s – 3.0s` | 🔴 `> 3.0s`
+  - Desktop: 🟢 `≤ 0.9s` | 🟡 `0.9s – 1.6s` | 🔴 `> 1.6s`
+- **TBT**:
+  - Mobile: 🟢 `≤ 200ms` | 🟡 `200ms – 600ms` | 🔴 `> 600ms`
+  - Desktop: 🟢 `≤ 150ms` | 🟡 `150ms – 350ms` | 🔴 `> 350ms`
+- **SI (Speed Index)**:
+  - Mobile: 🟢 `≤ 3.4s` | 🟡 `3.4s – 5.8s` | 🔴 `> 5.8s`
+  - Desktop: 🟢 `≤ 1.3s` | 🟡 `1.3s – 2.3s` | 🔴 `> 2.3s`
+- **CLS**:
+  - 🟢 **Good**: `≤ 0.1`
+  - 🟡 **Needs Improvement**: `0.1 – 0.25`
+  - 🔴 **Poor**: `> 0.25`
+
+---
+
 *Last updated: August 2026*

@@ -28,6 +28,7 @@ const METRICS: MetricDefinition[] = [
     title: 'Performance Score',
     unit: 'score',
     higherIsBetter: true,
+    outlierMultiplier: 2.0, // bounded 0–100; only flag extreme isolated single-point dips
     formatValue: (val) => (val !== null ? `${Math.round(val)}` : 'N/A'),
     formatRawValue: (val) => (val !== null ? `${val} / 100` : 'N/A'),
   },
@@ -36,6 +37,7 @@ const METRICS: MetricDefinition[] = [
     title: 'Largest Contentful Paint (LCP)',
     unit: 'seconds',
     higherIsBetter: false,
+    outlierMultiplier: 2.5, // right-skewed; loose fence to catch only extreme isolated spikes
     formatValue: (val) => (val !== null ? `${(val / 1000).toFixed(2)}s` : 'N/A'),
     formatRawValue: (val) => (val !== null ? `${val} ms` : 'N/A'),
   },
@@ -44,6 +46,7 @@ const METRICS: MetricDefinition[] = [
     title: 'First Contentful Paint (FCP)',
     unit: 'seconds',
     higherIsBetter: false,
+    outlierMultiplier: 2.5,
     formatValue: (val) => (val !== null ? `${(val / 1000).toFixed(2)}s` : 'N/A'),
     formatRawValue: (val) => (val !== null ? `${val} ms` : 'N/A'),
   },
@@ -52,6 +55,7 @@ const METRICS: MetricDefinition[] = [
     title: 'Total Blocking Time (TBT)',
     unit: 'ms',
     higherIsBetter: false,
+    outlierMultiplier: 2.5, // naturally spiky; sustained elevated = real regression not noise
     formatValue: (val) => (val !== null ? `${Math.round(val)}ms` : 'N/A'),
     formatRawValue: (val) => (val !== null ? `${val} ms` : 'N/A'),
   },
@@ -60,6 +64,7 @@ const METRICS: MetricDefinition[] = [
     title: 'Speed Index (SI)',
     unit: 'seconds',
     higherIsBetter: false,
+    outlierMultiplier: 2.5,
     formatValue: (val) => (val !== null ? `${(val / 1000).toFixed(2)}s` : 'N/A'),
     formatRawValue: (val) => (val !== null ? `${val} ms` : 'N/A'),
   },
@@ -68,6 +73,7 @@ const METRICS: MetricDefinition[] = [
     title: 'Cumulative Layout Shift (CLS)',
     unit: 'decimal',
     higherIsBetter: false,
+    outlierMultiplier: 1.5, // small normal range (0.0x); stricter fence catches meaningful jumps
     formatValue: (val) => (val !== null ? val.toFixed(2) : 'N/A'),
     formatRawValue: (val) => (val !== null ? `${val}` : 'N/A'),
   },
@@ -76,7 +82,7 @@ const METRICS: MetricDefinition[] = [
 export default function DashboardPage() {
   const [device, setDevice] = useState<DeviceType>('mobile');
   const [page, setPage] = useState<PageType>('Homepage');
-  const [timeRange, setTimeRange] = useState<TimeRangeType>('24H');
+  const [timeRange, setTimeRange] = useState<TimeRangeType>('1D');
 
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
@@ -313,6 +319,8 @@ export default function DashboardPage() {
                 definition={metricDef}
                 records={filteredTimeRangeRecords}
                 theme={theme}
+                device={device}
+                timeRange={timeRange}
               />
             ))}
           </div>
